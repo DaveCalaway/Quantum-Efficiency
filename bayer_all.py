@@ -3,6 +3,7 @@
 # The programs run on RBp.
 # It call the folder's name and take a bayer raw.
 # After terminated, it makes a zip.
+# Davide Gariselli V0.1 git: https://goo.gl/pFs9TY
 
 from __future__ import (
     unicode_literals,

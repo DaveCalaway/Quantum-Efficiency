@@ -1,6 +1,6 @@
 %% The script read npy's array ( with Bayer format ) and extract RGB's array in specific area of image.
 %  In final it plot the QE.
-% Verions 0.3 - 23-11-2016 Davide Gariselli
+% Verions 0.3 - 23-11-2016 Davide Gariselli Git: https://goo.gl/pFs9TY
 %% What did you have crop?
     %  im = readNPY('/Users/Dave/Desktop/tesi/test.npy');
     %  J = demosaic(im,'grbg');
