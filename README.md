@@ -33,7 +33,7 @@ On Rasp's console: python camera.py
 
 4. The Rasp's script will save a *folderName.zip* file with your Raw Bayer data, called *numberX.npy* .  
 
-5. You could use ```scp pi@IP:*folderName.zip* . ``` to grub the file from the raspberry to your Unix terminal destination pc ( linux or mac ) .  
+5. You could use ```scp pi@IP:*folderName.zip* . ``` to grab the file from the raspberry to your Unix terminal destination pc ( linux or mac ) .  
 
 **MatLab setup**:  
 
