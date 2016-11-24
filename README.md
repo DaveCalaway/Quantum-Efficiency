@@ -2,8 +2,8 @@
 Script for Matlab to calculate QE by Raw Bayer data, captured by Raspberry Pi script.
 
 ------------------------
+#### This project were made for my thesis into Optolab Lab at Enzo Ferrari University at Modena.
 #### Creative Commons license: https://goo.gl/Bt9Pwr  
-This project were made for my thesis into Optolab Lab at Enzo Ferrari University at Modena.
 ------------------------
 
 ### Program's tree:
