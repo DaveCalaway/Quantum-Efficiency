@@ -7,7 +7,7 @@ Script for Matlab to calculate QE by Raw Bayer data, captured by Raspberry Pi sc
 
 ### Program's tree:
 
-**bayer_all.py** : Raspberry Pi script for capture images with space bar.  
+- *bayer_all.py* : Raspberry Pi script for capture images with space bar.  
 
         This Script must have intalled in a Rasp:  
           * py-getch: https://goo.gl/jeLuDv  
@@ -15,10 +15,12 @@ Script for Matlab to calculate QE by Raw Bayer data, captured by Raspberry Pi sc
         
 On Rasp's console: python camera.py  
 
-**BayerRgb_to_RGB** : folder with MatLab script.  
+
+- *BayerRgb_to_RGB* : folder with MatLab script.  
 
         Open it on MatLab and follow the instruction on top.  
-        
+
+
 ### Study step by step:  
 
 **Raspberry setup**:  
@@ -32,3 +34,7 @@ On Rasp's console: python camera.py
 4. The Rasp's script will save a *folderName.zip* file with your Raw Bayer data, called *numberX.npy* .  
 
 5. You could use ```scp pi@IP:*folderName.zip* . ``` to grub the file from the raspberry to your Unix terminal destination pc ( linux or mac ) .  
+
+**MatLab setup**:  
+
+1.
