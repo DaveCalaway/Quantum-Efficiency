@@ -10,16 +10,16 @@ Script for Matlab to calculate QE by Raw Bayer data, captured by Raspberry Pi sc
 
 - *bayer_all.py* : Raspberry Pi script for capture images with space bar.  
 
-        This Script must have intalled in a Rasp:  
-          * py-getch: https://goo.gl/jeLuDv  
-          * picamera: https://goo.gl/QFMRFa  
+  This Script must have intalled in a Rasp:  
+    * py-getch: https://goo.gl/jeLuDv  
+    * picamera: https://goo.gl/QFMRFa  
         
 On Rasp's console: python camera.py  
 
 
 - *BayerRgb_to_RGB* : folder with MatLab script.  
 
-        Open it on MatLab and follow the instruction on top.  
+  Open it on MatLab and follow the instruction on top.  
 
 
 ### Study step by step:  
@@ -38,4 +38,13 @@ On Rasp's console: python camera.py
 
 **MatLab setup**:  
 
-1.
+1. Open *plot_mix.m* in Matlab
+
+2. Remember to set the number of captures, if you have more then one, keep in mind to start with NDF lower to NDF highter.
+
+_____________________________________________________
+
+For made this project i used:
+ - Optolab Lab resources ( monochromator, lenses and spectrometer )
+ - npy-matlab : https://goo.gl/N7EeEv
+ - picamera : https://goo.gl/J6bvXY
