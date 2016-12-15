@@ -1,7 +1,8 @@
 # Quantum-Efficiency
 Script for Matlab to calculate QE by Raw Bayer data, captured by Raspberry Pi script.  
 
-**Status:** Stable.
+**Status:** Stable.  
+
 ------------------------
 #### This project were made for my thesis into Optolab Lab at Enzo Ferrari University at Modena.
 #### Creative Commons license: https://goo.gl/Bt9Pwr  
@@ -14,7 +15,7 @@ Script for Matlab to calculate QE by Raw Bayer data, captured by Raspberry Pi sc
   This Script must have intalled in a Rasp:  
     * py-getch: https://goo.gl/jeLuDv  
     * picamera: https://goo.gl/QFMRFa  
-        
+
 On Rasp's console: python camera.py  
 
 
