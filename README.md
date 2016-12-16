@@ -47,6 +47,6 @@ On Rasp's console: python camera.py
 _____________________________________________________
 
 For made this project i used:
- - Optolab Lab resources ( monochromator, lenses and spectrometer )
+ - Optolab Lab resources ( monochromator, [lenses](https://goo.gl/m1V1cL), [NDF](https://goo.gl/0kudsM) and spectrometer )
  - npy-matlab : https://goo.gl/N7EeEv
  - picamera : https://goo.gl/J6bvXY
