@@ -3,7 +3,7 @@ Script for Matlab to calculate QE by Raw Bayer data, captured by Raspberry Pi sc
 
 **Status:** Stable.  
 
-![image](https://raw.githubusercontent.com/DaveCalaway/Quantum-Efficiency/master/images/1.jpg)
+![image](https://raw.githubusercontent.com/DaveCalaway/Quantum-Efficiency/master/images/1.jpg =250x)
 
 ------------------------
 #### This project were made for my thesis into Optolab Lab at Enzo Ferrari University at Modena.
