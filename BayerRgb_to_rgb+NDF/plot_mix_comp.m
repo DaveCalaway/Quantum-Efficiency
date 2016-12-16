@@ -1,25 +1,23 @@
 %% The script read npy's array ( with Bayer format ) and extract RGB's array in specific area of image.
-%  In final it plot the QE.
-% Verions 0.3 - 14-12-2016 Davide Gariselli Git: 
+%% The script use the NDF filter and Monochromator's characteristic for ploting the QE.
+% Verions 0.4 - 15-12-2016 Davide Gariselli Git: https://goo.gl/pKFcVZ at
+% Unimore Enzo Ferrari University
+clc
+clear all
+close all
+Height = 5;
+Width = 5;
 %% What did you have crop?
     %  im = readNPY('/Users/Dave/Desktop/tesi/test.npy');
     %  J = demosaic(im,'grbg');
     %  figure, imshow(J);
     %  [I2, rect] = imcrop(J);
     %  Copy position of area selected, paste it in 'Crop' value.
-clc
-clear all
-close all
-Height = 5;
-Width = 5;
 Crop = [1380.5 1098.5 24 22];
 lol = 0;
 %% Numbers of captures. 
 % If you have more then one, keep in mind to start with NDF lower to NDF highter.
 n = input('Number of NDFs filters: ');
-%n = 1;
-%NDF_name = input('Write NDF filter: ','s');
-
 
 for a=1:n
     %% Search .npy files
@@ -29,7 +27,6 @@ for a=1:n
     % Load spectrum for specific NDF
     fprintf('Loading spectrum\n');
     data = read_txt(NDF);
-    %Samples= input('How many samples per each flow? ')
 
     txt_files = dir([PathName, '*.npy']);   % Search for npy files in the selected path
     files_name = {txt_files.name};         % Name of the npy files in the folder
@@ -101,9 +98,7 @@ for a=1:n
     mono(5,2,a) = N;
     
     if (a==n)
-        % put on top the vector
-        %mono = circshift(mono,1);
-        fprintf('salta\n');
+        %fprintf('Jump\n');
         lol=1;
     end
     
@@ -136,52 +131,23 @@ if lol == 1
         mono(5,2,n+1) = size(last,2);
     end
 end
-%             p = find(h_vect == vettore(i));
-%             % Existing value
-%             if p~=0
-%                 for x=1:3
-%                     media = RGB_images(x,i) - h_RGB(x,p);
-%                     if i == 1
-%                         media_RGB(x,1) = media;
-%                     else
-%                         media_RGB(x,2) = media;
-%                     end
-%                 end
-%                 % it is a column vector containing the mean of each row.
-%                 media_RGB = mean(media_RGB,2);
-%             % New elements
-%             else
-%                 q = length(h_RGB)+1;
-%                 for x=1:3
-%                     RGB_images(x,i) = RGB_images(x,i) - media_RGB(x,1);
-%                     h_RGB(x,q) = RGB_images(x,i);
-%                 end
-%             end
-%         end
-%         % combine data from A and B with no repetitions. 
-%         h_vect = union(h_vect,vettore);
-%     end
-%     
-%     %% Print quantum efficiency
-%     if lol == 1 || n == 1
-%         if n == 1
-%             h_vect = vettore;
-%             %h_RGB = RGB_images;
-%             h_RGB = mono;
-%             q=N;
-%         end
-%         figure()
-%         grid on
-%         hold on
-%         for i=1:q
-%             plot(h_vect(1,i),h_RGB(1,i),'r--o');
-%             plot(h_vect(1,i),h_RGB(2,i),'g--o');
-%             plot(h_vect(1,i),h_RGB(3,i),'b--o');
-%         end
-%     end
-%     % Run only  the first time
-%     if lol == 0 
-%         h_vect = vettore;
-%         h_RGB = RGB_images;
-%         lol = 1;
-%     end 
+
+%% Print quantum efficiency
+    if lol == 1 || n == 1
+        if n == 1
+            % new vettore
+            mono(4,:,n+1) = vettore;
+            % new NDF
+            mono(5,1,n+1) = mono(5,1,n);
+            % new size
+            mono(5,2,n+1) = N;
+        end
+        figure()
+        grid on
+        hold on
+        for i=1:mono(5,2,n+1)
+            plot(mono(4,i,n+1),mono(1,i,n+1),'r--o');
+            plot(mono(4,i,n+1),mono(2,i,n+1),'g--o');
+            plot(mono(4,i,n+1),mono(3,i,n+1),'b--o');
+        end
+    end
