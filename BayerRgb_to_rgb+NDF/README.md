@@ -5,16 +5,16 @@ Remember to compose your Raw Bayer folder with inside the *NDF* ( please respect
 
 *Example:*
 
-Raw_Bayer_data_folder/
-  /Raw_Bayer_1.npy
-  /Raw_Bayer_2.npy
-  /.......
-  /Raw_Bayer_N.npy
-  /*NDF*/
-    /Monochromator_Spectrum_1.txt
-    /Monochromator_Spectrum_2.txt
-    /.......
-    /Monochromator_Spectrum_N.txt
+Raw_Bayer_data_folder/  
+  /Raw_Bayer_1.npy  
+  /Raw_Bayer_2.npy  
+  /.......  
+  /Raw_Bayer_N.npy  
+  /*NDF*/  
+    /Monochromator_Spectrum_1.txt  
+    /Monochromator_Spectrum_2.txt  
+    /.......  
+    /Monochromator_Spectrum_N.txt  
 
 
 **Status:** Alpha.
