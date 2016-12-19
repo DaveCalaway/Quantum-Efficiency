@@ -5,18 +5,19 @@
 % clc
 % clear all
 % close all
-function data =read_txt(NDF)
-vettore=[400:5:800];
+function [data,transmission] =read_txt(PathName)
+vettore=[400:5:810];
 Wave = [];
 Ampl = [];
 nWave = [];
-for i=1:80
+
+% How many txt files in the folder?
+my_dir = fullfile(PathName,'NDF');
+num = length(dir([my_dir, '/*.TXT']));
+
+for i=1:num
 %% Initialize variables.
-if NDF == 0.6
-    filename = strcat('/Users/Dave/Desktop/tesi/A_NDF06/',num2str(vettore(i)),'.txt');
-else
-    filename = strcat('/Users/Dave/Desktop/tesi/A_NDF12/',num2str(vettore(i)),'.txt');
-end
+    filename = strcat(PathName,'/NDF/',num2str(vettore(i)),'.txt');
 delimiter = '\t';
 %% Format string for each line of text:
 formatSpec = '%f%f%[^\n\r]';
@@ -50,10 +51,34 @@ end
 %   hold on
 % Apmlitude normalized respect max
  nAmpl = Ampl/max(abs(Ampl(:)));
- for i=1:80
+ for i=1:num
      data(i,1) = max(nAmpl(:,i));
      %plot(vettore(1,i),data(i,1),'r--o');
  end
+ transmission = Transmission(PathName);
+end
+ 
+%% Import Transmission Data ( optical density ) from xlsx file
+    % example: OD=log10(1/Transmission)
+function transmission = Transmission(PathName)
+% How many xlsx files in the folder?
+    num = length(dir([PathName, '/*.xlsx']));
+    if(num == 1 )
+        fprintf('You have used only one NDF');
+        filename = strcat(PathName,'OP.xlsx');
+        [~, ~, raw] = xlsread(filename,'%Transmission');
+        raw = raw(3:end,3:4);
+
+        %% Create output variable
+        transmission = reshape([raw{:}],size(raw));
+
+        %% Clear temporary variables
+        clearvars raw; 
+    else
+        fprintf('You have used a combination of %d NDF',num);
+        
+    end
+end
 % for i=1:80
 %   plot(Wave(:,i),nAmpl(:,i))
 % end

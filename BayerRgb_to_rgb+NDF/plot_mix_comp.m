@@ -1,7 +1,8 @@
 %% The script read npy's array ( with Bayer format ) and extract RGB's array in specific area of image.
 %% The script use the NDF filter and Monochromator's characteristic for ploting the QE.
-% Verions 0.4 - 15-12-2016 Davide Gariselli Git: https://goo.gl/pKFcVZ at
-% Unimore Enzo Ferrari University
+% Verions 0.5 alpha - 19-12-2016 
+% Davide Gariselli Git: https://goo.gl/pKFcVZ at Unimore Enzo Ferrari University
+
 clc
 clear all
 close all
@@ -26,7 +27,9 @@ for a=1:n
     [FileName,PathName]= uigetfile('*.npy','Select source directory:');
     % Load spectrum for specific NDF
     fprintf('Loading spectrum\n');
-    data = read_txt(NDF);
+    %data = read_txt(NDF);
+    [data,transmission] = read_txt(PathName);
+    %transmission = read_txt(PathName);
 
     txt_files = dir([PathName, '*.npy']);   % Search for npy files in the selected path
     files_name = {txt_files.name};         % Name of the npy files in the folder
@@ -98,7 +101,7 @@ for a=1:n
     mono(5,2,a) = N;
     
     if (a==n)
-        %fprintf('Jump\n');
+        fprintf('Jump\n');
         lol=1;
     end
     
@@ -107,47 +110,47 @@ end
 %% Multi plot with NDF's mean
      %% Start before first time
 
-if lol == 1
-    % News matrix in Z with first mattrix (z=1)
-    mono(:,:,n+1) = mono(:,:,1);
-    % Number of NDFs filters
-    for z=2:n
-        % cerca ultimo valore di n+1 dentro a z+1
-        last = mono(4,:,n+1);
-        [rowStart,colStart] = find(mono(4,:,z) == last(end));
-        % a me interessano le colonne, inzio di quello che devo copiare in
-        % n+1
-        % cerca ultimo vettore in z+1
-        %prova = mono( 1:3,colStart:mono(5,2,z),z );
-        mono(1:3,mono(5,2,n+1):( mono(5,2,n+1)+(mono(5,2,z)-colStart) ), n+1 ) = mono( 1:3,colStart:mono(5,2,z),z );
-        last = union(last,mono(4,:,n));
-        % delate the first zero column
-        last(:,1)=[];
+ if lol == 1
+     % News matrix in Z with first mattrix (z=1)
+     mono(:,:,n+1) = mono(:,:,1);
+     % Number of NDFs filters
+     for z=2:n
+         % cerca ultimo valore di n+1 dentro a z+1
+         last = mono(4,:,n+1);
+         [rowStart,colStart] = find(mono(4,:,z) == last(end));
+         % a me interessano le colonne, inzio di quello che devo copiare in
+         % n+1
+         % cerca ultimo vettore in z+1
+         %prova = mono( 1:3,colStart:mono(5,2,z),z );
+         mono(1:3,mono(5,2,n+1):( mono(5,2,n+1)+(mono(5,2,z)-colStart) ), n+1 ) = mono( 1:3,colStart:mono(5,2,z),z );
+         last = union(last,mono(4,:,n));
+         % delate the first zero column
+         last(:,1)=[];
+         % new vettore
+         mono(4,:,n+1) = last;
+         % new NDF
+         mono(5,1,n+1) = mono(5,1,n);
+         % new size
+         mono(5,2,n+1) = size(last,2);
+     end
+ end
+
+%% Print quantum efficiency
+if lol == 1 || n == 1
+    if n == 1
         % new vettore
-        mono(4,:,n+1) = last;
+        mono(4,:,n+1) = vettore;
         % new NDF
         mono(5,1,n+1) = mono(5,1,n);
         % new size
-        mono(5,2,n+1) = size(last,2);
+        mono(5,2,n+1) = N;
+    end
+    figure()
+    grid on
+    hold on
+    for i=1:mono(5,2,n+1)
+        plot(mono(4,i,n+1),mono(1,i,n+1),'r--o');
+        plot(mono(4,i,n+1),mono(2,i,n+1),'g--o');
+        plot(mono(4,i,n+1),mono(3,i,n+1),'b--o');
     end
 end
-
-%% Print quantum efficiency
-    if lol == 1 || n == 1
-        if n == 1
-            % new vettore
-            mono(4,:,n+1) = vettore;
-            % new NDF
-            mono(5,1,n+1) = mono(5,1,n);
-            % new size
-            mono(5,2,n+1) = N;
-        end
-        figure()
-        grid on
-        hold on
-        for i=1:mono(5,2,n+1)
-            plot(mono(4,i,n+1),mono(1,i,n+1),'r--o');
-            plot(mono(4,i,n+1),mono(2,i,n+1),'g--o');
-            plot(mono(4,i,n+1),mono(3,i,n+1),'b--o');
-        end
-    end
