@@ -1,6 +1,6 @@
 %% The script read npy's array ( with Bayer format ) and extract RGB's array in specific area of image.
 %% The script use the NDF filter and Monochromator's characteristic for ploting the QE.
-% Verions 0.5 alpha - 19-12-2016 
+% Verions 0.6 alpha - 21-12-2016 
 % Davide Gariselli Git: https://goo.gl/pKFcVZ at Unimore Enzo Ferrari University
 
 clc

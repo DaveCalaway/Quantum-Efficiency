@@ -76,7 +76,20 @@ function transmission = Transmission(PathName)
         clearvars raw; 
     else
         fprintf('You have used a combination of %d NDF',num);
-        
+        % crate the struct with all xlsx files
+        files = dir([PathName, '/*.xlsx']);
+        for i=1:num
+            filename = fullfile(PathName,char({files(i).name}));
+            % open xlsx file and copy the raws
+            [~, ~, raw] = xlsread(filename,'%Transmission');
+            raw = raw(3:end,3:4);
+            % from rawCell to rawMatrix
+            raw = reshape([raw{:}],size(raw));
+            transmission(1:length(raw()),2) = raw(1:end,2);
+            transmission  = sum(transmission,2);
+        end
+        raw(:,2) = transmission;
+        transmission = raw;
     end
 end
 % for i=1:80
