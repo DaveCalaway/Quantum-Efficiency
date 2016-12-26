@@ -1,6 +1,6 @@
 %% The script read npy's array ( with Bayer format ) and extract RGB's array in specific area of image.
-%% The script use the NDF filter and Monochromator's characteristic for ploting the QE.
-% Verions 0.6 alpha - 21-12-2016 
+%% The script use the NDF filter ( Optical Densities ) and Monochromator's characteristic for ploting the QE.
+% Verions 0.7 alpha - 26-12-2016 
 % Davide Gariselli Git: https://goo.gl/pKFcVZ at Unimore Enzo Ferrari University
 
 clc
@@ -21,16 +21,15 @@ lol = 0;
 n = input('Number of NDFs filters: ');
 
 for a=1:n
-    %% Search .npy files
+    %% Grab the datas
     NDF = input('What NDFs filter did you used: ');
-    fprintf('Please load NPY capture with NDF: %1.1f \n',NDF);
+    fprintf('Please load Raw Bayer (.NPY) capture with NDF: %1.1f \n',NDF);
+    %% Load spectrum for specific NDF
     [FileName,PathName]= uigetfile('*.npy','Select source directory:');
-    % Load spectrum for specific NDF
-    fprintf('Loading spectrum\n');
-    %data = read_txt(NDF);
+    % Load Optical Densities
     [data,transmission] = read_txt(PathName);
-    %transmission = read_txt(PathName);
-
+    fprintf('Loading Optical Densities\n');
+    
     txt_files = dir([PathName, '*.npy']);   % Search for npy files in the selected path
     files_name = {txt_files.name};         % Name of the npy files in the folder
     N=length (files_name);                  % How many npy files in the folder? N!
@@ -66,7 +65,7 @@ for a=1:n
                     pos=pos+1;
                 end
             end
-            %% Normalized and Mean
+            %% Normalized and Mean ( Average )
             if z==1
                 %a_B_n = color/255;
                 a_B_m = mean(color);
@@ -88,7 +87,7 @@ for a=1:n
     %% Normalized respect max
     RGB_images_n = RGB_images/max(abs(RGB_images(:)));
     
-    %% Subtract RBG_images (normalized respect max) to Data monochromator
+    %% Divide RBG_images (normalized respect max) to Data monochromator
     %% txt (normalized respect max) and fill mono.
     
     for y=1:N
@@ -101,7 +100,7 @@ for a=1:n
     mono(5,2,a) = N;
     
     if (a==n)
-        fprintf('Jump\n');
+        fprintf('Interpolation of data\n');
         lol=1;
     end
     
@@ -118,10 +117,23 @@ end
          % cerca ultimo valore di n+1 dentro a z+1
          last = mono(4,:,n+1);
          [rowStart,colStart] = find(mono(4,:,z) == last(end));
+         % end position
+         [rawEnd,colEnd] = find(mono(4,:,z) == max(mono(4,:,z)) );
+     
+         %% interpolation with Optical Transmission
+         % search the Wavelength in Transmission
+         [raw,col] = find( transmission(:,1) == last(end) );
+         
+         for i = colStart:(colEnd-colStart)
+             for e = raw:(colEnd-colStart)
+                 % Right-array division (./)
+                 % mono(:,i,z) = mono(:,i,z)./ log10( 100/transmission(e,2) );
+             end
+         end
+         %% copy all with z+1 plan
          % a me interessano le colonne, inzio di quello che devo copiare in
          % n+1
          % cerca ultimo vettore in z+1
-         %prova = mono( 1:3,colStart:mono(5,2,z),z );
          mono(1:3,mono(5,2,n+1):( mono(5,2,n+1)+(mono(5,2,z)-colStart) ), n+1 ) = mono( 1:3,colStart:mono(5,2,z),z );
          last = union(last,mono(4,:,n));
          % delate the first zero column
@@ -132,10 +144,12 @@ end
          mono(5,1,n+1) = mono(5,1,n);
          % new size
          mono(5,2,n+1) = size(last,2);
+        
      end
  end
 
 %% Print quantum efficiency
+fprintf('Plot the QE\n');
 if lol == 1 || n == 1
     if n == 1
         % new vettore

@@ -64,7 +64,7 @@ function transmission = Transmission(PathName)
 % How many xlsx files in the folder?
     num = length(dir([PathName, '/*.xlsx']));
     if(num == 1 )
-        fprintf('You have used only one NDF');
+        fprintf('You have used only one NDF\n');
         filename = strcat(PathName,'OP.xlsx');
         [~, ~, raw] = xlsread(filename,'%Transmission');
         raw = raw(3:end,3:4);
@@ -75,7 +75,7 @@ function transmission = Transmission(PathName)
         %% Clear temporary variables
         clearvars raw; 
     else
-        fprintf('You have used a combination of %d NDF',num);
+        fprintf('You have used a combination of %d NDF\n',num);
         % crate the struct with all xlsx files
         files = dir([PathName, '/*.xlsx']);
         for i=1:num
