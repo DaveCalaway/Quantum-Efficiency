@@ -1,6 +1,6 @@
 %% The script read npy's array ( with Bayer format ) and extract RGB's array in specific area of image.
 %% The script use the NDF filter ( Optical Densities ) and Monochromator's characteristic for ploting the QE.
-% Verions 0.7 alpha - 26-12-2016 
+% Verions 0.8 alpha - 16-01-2017 
 % Davide Gariselli Git: https://goo.gl/pKFcVZ at Unimore Enzo Ferrari University
 
 clc
@@ -8,6 +8,7 @@ clear all
 close all
 Height = 5;
 Width = 5;
+
 %% What did you have crop?
     %  im = readNPY('/Users/Dave/Desktop/tesi/test.npy');
     %  J = demosaic(im,'grbg');
@@ -23,13 +24,14 @@ n = input('Number of NDFs filters: ');
 for a=1:n
     %% Grab the datas
     NDF = input('What NDFs filter did you used: ');
-    fprintf('Please load Raw Bayer (.NPY) capture with NDF: %1.1f \n',NDF);
-    %% Load spectrum for specific NDF
+    fprintf('Please load Raw Bayer (.NPY) captured with NDF: %1.1f \n',NDF);
+    %% Load position of spectrum for specific NDF
     [FileName,PathName]= uigetfile('*.npy','Select source directory:');
-    % Load Optical Densities
+    %% Load NDF(TXT) and Optical Densities(xlsx)
     [data,transmission] = read_txt(PathName);
     fprintf('Loading Optical Densities\n');
     
+    %% Load Raw Bayer data files from capture
     txt_files = dir([PathName, '*.npy']);   % Search for npy files in the selected path
     files_name = {txt_files.name};         % Name of the npy files in the folder
     N=length (files_name);                  % How many npy files in the folder? N!
@@ -87,7 +89,7 @@ for a=1:n
     %% Normalized respect max
     RGB_images_n = RGB_images/max(abs(RGB_images(:)));
     
-    %% Divide RBG_images (normalized respect max) to Data monochromator
+    %% Divide RBG_images (normalized respect max) with Data monochromator
     %% txt (normalized respect max) and fill mono.
     
     for y=1:N
@@ -100,17 +102,17 @@ for a=1:n
     mono(5,2,a) = N;
     
     if (a==n)
-        fprintf('Interpolation of data\n');
+        fprintf('Interpolation of data.\n');
         lol=1;
     end
     
 end
 
+
 %% Multi plot with NDF's mean
-     %% Start before first time
 
  if lol == 1
-     % News matrix in Z with first mattrix (z=1)
+     % New matrix in Z with the first matrix (z=1)
      mono(:,:,n+1) = mono(:,:,1);
      % Number of NDFs filters
      for z=2:n
@@ -120,17 +122,18 @@ end
          % end position
          [rawEnd,colEnd] = find(mono(4,:,z) == max(mono(4,:,z)) );
      
-         %% interpolation with Optical Transmission
+         %% Interpolation with Optical Transmission
          % search the Wavelength in Transmission
          [raw,col] = find( transmission(:,1) == last(end) );
          
-         for i = colStart:(colEnd-colStart)
-             for e = raw:(colEnd-colStart)
-                 % Right-array division (./)
-                 % mono(:,i,z) = mono(:,i,z)./ log10( 100/transmission(e,2) );
-             end
+         for i = colStart:(colStart+(colEnd-colStart))
+             % Right-array division (./)
+             %mono(1:3,i,z) = mono(1:3,i,z) ./ log10( 100/transmission(raw,2) );
+             mono(1:3,i,z) = mono(1:3,i,z) ./ -log10( 0.6 );
+             %raw = raw+1;
          end
-         %% copy all with z+1 plan
+         
+         %% Copy all with z+1 plan
          % a me interessano le colonne, inzio di quello che devo copiare in
          % n+1
          % cerca ultimo vettore in z+1

@@ -45,35 +45,38 @@ dataArray = textscan(fileID, formatSpec, 'Delimiter', delimiter,  'ReturnOnError
 fclose(fileID);
 clearvars filename delimiter formatSpec fileID dataArray ans;
 end
-%% Allocate imported array to column variable names
-%  figure()
-%   grid on
-%   hold on
-% Apmlitude normalized respect max
+
+%% Apmlitude normalized respect max
  nAmpl = Ampl/max(abs(Ampl(:)));
  for i=1:num
      data(i,1) = max(nAmpl(:,i));
      %plot(vettore(1,i),data(i,1),'r--o');
  end
+ 
+ %% Call for optical density
  transmission = Transmission(PathName);
 end
  
+
 %% Import Transmission Data ( optical density ) from xlsx file
     % example: OD=log10(1/Transmission)
 function transmission = Transmission(PathName)
 % How many xlsx files in the folder?
     num = length(dir([PathName, '/*.xlsx']));
+    % One xlsx file
     if(num == 1 )
         fprintf('You have used only one NDF\n');
         filename = strcat(PathName,'OP.xlsx');
         [~, ~, raw] = xlsread(filename,'%Transmission');
         raw = raw(3:end,3:4);
 
-        %% Create output variable
+        % Create output variable
         transmission = reshape([raw{:}],size(raw));
 
-        %% Clear temporary variables
+        % Clear temporary variables
         clearvars raw; 
+        
+    % more then one xlsx files
     else
         fprintf('You have used a combination of %d NDF\n',num);
         % crate the struct with all xlsx files
