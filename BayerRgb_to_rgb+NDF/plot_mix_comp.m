@@ -1,6 +1,6 @@
 %% The script read npy's array ( with Bayer format ) and extract RGB's array in specific area of image.
 %% The script use the NDF filter ( Optical Densities ) and Monochromator's characteristic for ploting the QE.
-% Verions 0.8 alpha - 16-01-2017 
+% Verions 0.9 alpha - 17-01-2017 
 % Davide Gariselli Git: https://goo.gl/pKFcVZ at Unimore Enzo Ferrari University
 
 clc
@@ -89,14 +89,15 @@ for a=1:n
     %% Normalized respect max
     RGB_images_n = RGB_images/max(abs(RGB_images(:)));
     
-    %% Divide RBG_images (normalized respect max) with Data monochromator
-    %% txt (normalized respect max) and fill mono.
+    %% Divide RBG_images (normalized respect max) with Data Spectrum monochromator
+    %% txt (normalized respect max) and fill mono (NOT nomalized respect max).
     
     for y=1:N
         for x=1:3
             mono(x,y,a) = RGB_images_n(x,y) / data(y,1);
         end
     end
+    %% Add info to the matrix import
     mono(4,1:N,a) = vettore;
     mono(5,1,a) = NDF;
     mono(5,2,a) = N;
@@ -129,7 +130,7 @@ end
          for i = colStart:(colStart+(colEnd-colStart))
              % Right-array division (./)
              %mono(1:3,i,z) = mono(1:3,i,z) ./ log10( 100/transmission(raw,2) );
-             mono(1:3,i,z) = mono(1:3,i,z) ./ -log10( 0.6 );
+             mono(1:3,i,z) = mono(1:3,i,z) ./ log10( 0.6 );
              %raw = raw+1;
          end
          

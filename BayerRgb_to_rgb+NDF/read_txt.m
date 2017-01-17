@@ -1,4 +1,4 @@
-%% Import data from text file.
+%% Import data from text and xlsx file.
 % Script for importing data from the following text file.
 % Spectrum: https://goo.gl/Zaojol
 %
@@ -63,7 +63,7 @@ end
 function transmission = Transmission(PathName)
 % How many xlsx files in the folder?
     num = length(dir([PathName, '/*.xlsx']));
-    % One xlsx file
+    %% One xlsx file
     if(num == 1 )
         fprintf('You have used only one NDF\n');
         filename = strcat(PathName,'OP.xlsx');
@@ -76,7 +76,7 @@ function transmission = Transmission(PathName)
         % Clear temporary variables
         clearvars raw; 
         
-    % more then one xlsx files
+    %% More then one xlsx files
     else
         fprintf('You have used a combination of %d NDF\n',num);
         % crate the struct with all xlsx files
@@ -88,9 +88,13 @@ function transmission = Transmission(PathName)
             raw = raw(3:end,3:4);
             % from rawCell to rawMatrix
             raw = reshape([raw{:}],size(raw));
-            transmission(1:length(raw()),2) = raw(1:end,2);
-            transmission  = sum(transmission,2);
+            %% from transmission% to optical density
+            for j=1:length(raw())
+                transmission(j,i) = log10(100/raw(j,2));
+            end
         end
+        transmission = sum(transmission,2);
+        %transmission  = prod( (transmission./100),2 );
         raw(:,2) = transmission;
         transmission = raw;
     end
