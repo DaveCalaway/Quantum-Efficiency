@@ -1,6 +1,6 @@
-%% The script read npy's array ( with Bayer format ) and extract RGB's array in specific area of image.
+%% The script read npy array ( with Bayer format ) and extract RGB's array in specific area of image.
 %% The script use the NDF filter ( Optical Densities ) and Monochromator's characteristic for ploting the QE.
-% Verions 0.9 alpha - 17-01-2017 
+% Verions 0.10 alpha - 18-01-2017 
 % Davide Gariselli Git: https://goo.gl/pKFcVZ at Unimore Enzo Ferrari University
 
 clc
@@ -8,6 +8,9 @@ clear all
 close all
 Height = 5;
 Width = 5;
+
+%% Debug define, if it is 1 the script show all plots
+deb_plot = 1;
 
 %% What did you have crop?
     %  im = readNPY('/Users/Dave/Desktop/tesi/test.npy');
@@ -19,26 +22,26 @@ Crop = [1380.5 1098.5 24 22];
 lol = 0;
 %% Numbers of captures. 
 % If you have more then one, keep in mind to start with NDF lower to NDF highter.
-n = input('Number of NDFs filters: ');
+n = input('Number of capture(s): ');
 
 for a=1:n
     %% Grab the datas
     NDF = input('What NDFs filter did you used: ');
+    %% Position of folder with all files 
     fprintf('Please load Raw Bayer (.NPY) captured with NDF: %1.1f \n',NDF);
-    %% Load position of spectrum for specific NDF
     [FileName,PathName]= uigetfile('*.npy','Select source directory:');
-    %% Load NDF(TXT) and Optical Densities(xlsx)
-    [data,transmission] = read_txt(PathName);
+    %% Automatic loading the spectrum with NDF(TXT) and Optical Densities(xlsx)
     fprintf('Loading Optical Densities\n');
+    [data,OD] = read_txt(PathName,deb_plot);
     
-    %% Load Raw Bayer data files from capture
+    %% Load Raw Bayer date with specific NDF from capture
     txt_files = dir([PathName, '*.npy']);   % Search for npy files in the selected path
     files_name = {txt_files.name};         % Name of the npy files in the folder
     N=length (files_name);                  % How many npy files in the folder? N!
-    %% What to plot in X axis
+    % What to plot in X axis
     vettore = strrep(files_name,'.npy','');
     vettore = str2double(vettore);
-    %% Preallocate Memory matrix
+    % Preallocate Memory matrix
 %     color = zeros(Height*Width, 1);
 %     RGB_images = zeros(3,Height*Width);
 
@@ -57,7 +60,6 @@ for a=1:n
         %% What did you have crop?
         I2 = imcrop(Demo, Crop);
         imshow(I2)
-
         %% Color extraction
         for z=1:3
             pos=1;
@@ -97,6 +99,17 @@ for a=1:n
             mono(x,y,a) = RGB_images_n(x,y) / data(y,1);
         end
     end
+    if deb_plot == 1
+        figure()
+        grid on
+        hold on
+        title(['Quantum-Efficiency of ',num2str(NDF),' NDF']);
+        for i=1:N
+            plot(vettore(1,i),mono(1,i,a),'r--o');
+            plot(vettore(1,i),mono(2,i,a),'g--o');
+            plot(vettore(1,i),mono(3,i,a),'b--o');
+        end
+    end
     %% Add info to the matrix import
     mono(4,1:N,a) = vettore;
     mono(5,1,a) = NDF;
@@ -125,7 +138,7 @@ end
      
          %% Interpolation with Optical Transmission
          % search the Wavelength in Transmission
-         [raw,col] = find( transmission(:,1) == last(end) );
+         [raw,col] = find( OD(:,1) == last(end) );
          
          for i = colStart:(colStart+(colEnd-colStart))
              % Right-array division (./)
@@ -166,6 +179,7 @@ if lol == 1 || n == 1
     figure()
     grid on
     hold on
+    title('Quantum-Efficiency mixed')
     for i=1:mono(5,2,n+1)
         plot(mono(4,i,n+1),mono(1,i,n+1),'r--o');
         plot(mono(4,i,n+1),mono(2,i,n+1),'g--o');
