@@ -5,19 +5,25 @@
 % clc
 % clear all
 % close all
-function [data,OD] =read_txt(PathName,deb_plot)
-vettore=[400:5:810];
+function [ODM,data,OD] =read_txt(PathName,debug_plot)
+%vettore=[400:5:810];
 Wave = [];
 Ampl = [];
 %nWave = [];
 
 % How many txt files in the folder?
 my_dir = fullfile(PathName,'NDF');
+txt_files = dir([my_dir, '/*.TXT']);   % Search for npy files in the selected path
+files_name = {txt_files.name};         % Name of the npy files in the folder
 num = length(dir([my_dir, '/*.TXT']));
 
 for i=1:num
     %% Initialize variables.
-    filename = strcat(PathName,'/NDF/',num2str(vettore(i)),'.txt');
+    filename = fullfile(my_dir,char(files_name(1,i)));
+    %data(i,1) = extractBetween( filename,'NDF/','.TXT');
+    nop = strsplit(char(files_name(1,i)),'.');
+    data(i,1) = str2double(nop(1,1));
+    %filename = strcat(PathName,'/NDF/',num2str(vettore(i)),'.txt');
     delimiter = '\t';
     %% Format string for each line of text:
     formatSpec = '%f%f%[^\n\r]';
@@ -49,28 +55,25 @@ end
 %% Apmlitude normalized respect max
  nAmpl = Ampl/max(abs(Ampl(:)));
  
- if deb_plot == 1
-     figure()
-     grid on
-     hold on
-     title('Monochromator spectrum TXT files')
- end
+%  if deb_plot == 1
+%      figure()
+%      grid on
+%      hold on
+%      title('Monochromator spectrum TXT files')
+%  end
  
  for i=1:num
-     data(i,1) = max(nAmpl(:,i));
-      if deb_plot == 1
-          plot(vettore(1,i),data(i,1),'r--o');
-      end
+     data(i,2) = max(nAmpl(:,i));
  end
  
  %% Call for optical density
- OD = Transmission(PathName,deb_plot);
+ [ODM,OD] = Transmission(PathName,debug_plot);
 end
  
 
 %% Import Transmission Data ( optical density ) from xlsx file
     % example: OD=log10(1/Transmission)
-function OD = Transmission(PathName,deb_plot)
+function [ODM,OD] = Transmission(PathName,debug_plot)
 % How many xlsx files in the folder?
     num = length(dir([PathName, '/*.xlsx']));
     %% One xlsx file
@@ -82,37 +85,20 @@ function OD = Transmission(PathName,deb_plot)
 
         % from rawCell to rawMatrix
         transmission = reshape([raw{:}],size(raw));
-        
+        %% Conversion from Transmission% to Optical Density
         for j=1:length(transmission())
                 OD(j,1) = log10(100/transmission(j,2));
         end
         transmission(:,2) = OD(:,1);
         OD = transmission;
         
-        if deb_plot == 1
-            figure()
-            grid on
-            hold on
-            title('Optical Density xlsx files')
-            
-            for i=1:length(OD())
-                plot(OD(i,1),OD(i,2),'r--o');
-            end
-        end
-        % Clear temporary variables
-        clearvars raw; 
+        ODM = 0; % Necessary for debug
         
     %% More then one xlsx files
     else
         fprintf('You have used a combination of %d NDF\n',num);
         % crate the struct with all xlsx files
         files = dir([PathName, '/*.xlsx']);
-        if deb_plot == 1
-            figure()
-            grid on
-            hold on
-            title('Optical Density mixed')
-        end
         for i=1:num
             filename = fullfile(PathName,char({files(i).name}));
             % open xlsx file and copy the raws
@@ -121,26 +107,23 @@ function OD = Transmission(PathName,deb_plot)
             
             % from rawCell to rawMatrix
             transmission = reshape([raw{:}],size(raw));
-            %% from transmission% to optical density
+            %% Conversion from Transmission% to Optical Density
             for j=1:length(transmission())
                 OD(j,i) = log10(100/transmission(j,2));
-                if deb_plot == 1
-                    if i == 1
-                        plot(transmission(j,1),OD(j,1),'r--o');
-                    else
-                        plot(transmission(j,1),OD(j,2),'g--x');
-                    end
-                end
             end
+        end
+        %% DEBUG
+        if debug_plot == 1
+            %debug(:,1) = transmission(j,1);
+            ODM = OD;
         end
         OD = sum(OD,2);
         transmission(:,2) = OD(:,1);
         OD = transmission;
-        if deb_plot == 1
-            for i=1:length(OD())
-                plot(OD(i,1),OD(i,2),'b--o');
-            end
-        end
+%         if debug_plot == 1
+%             optical_density(:,1,3) = OD(:,1);
+%             optical_density(:,i+2,3) = OD(:,2);
+%         end
     end
 end
 % for i=1:80

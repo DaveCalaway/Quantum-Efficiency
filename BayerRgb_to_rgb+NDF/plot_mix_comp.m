@@ -1,6 +1,6 @@
 %% The script read npy array ( with Bayer format ) and extract RGB's array in specific area of image.
 %% The script use the NDF filter ( Optical Densities ) and Monochromator's characteristic for ploting the QE.
-% Verions 0.10 alpha - 18-01-2017 
+% Verions 0.11 alpha - 23-01-2017 
 % Davide Gariselli Git: https://goo.gl/pKFcVZ at Unimore Enzo Ferrari University
 
 clc
@@ -9,8 +9,8 @@ close all
 Height = 5;
 Width = 5;
 
-%% Debug define, if it is 1 the script show all plots
-deb_plot = 1;
+%% Debug define, if it is 1 the script will show all plots
+debug_plot = 1;
 
 %% What did you have crop?
     %  im = readNPY('/Users/Dave/Desktop/tesi/test.npy');
@@ -30,9 +30,11 @@ for a=1:n
     %% Position of folder with all files 
     fprintf('Please load Raw Bayer (.NPY) captured with NDF: %1.1f \n',NDF);
     [FileName,PathName]= uigetfile('*.npy','Select source directory:');
+    
     %% Automatic loading the spectrum with NDF(TXT) and Optical Densities(xlsx)
     fprintf('Loading Optical Densities\n');
-    [data,OD] = read_txt(PathName,deb_plot);
+    [ODM,data,OD] = read_txt(PathName,debug_plot);
+
     
     %% Load Raw Bayer date with specific NDF from capture
     txt_files = dir([PathName, '*.npy']);   % Search for npy files in the selected path
@@ -41,10 +43,8 @@ for a=1:n
     % What to plot in X axis
     vettore = strrep(files_name,'.npy','');
     vettore = str2double(vettore);
-    % Preallocate Memory matrix
-%     color = zeros(Height*Width, 1);
-%     RGB_images = zeros(3,Height*Width);
 
+    figure('Name','Demosaic and cut','NumberTitle','off'); % necessary for show what and where is crap
     %% scroll all images
     for i=1:N
         %% Initialize variables.
@@ -96,24 +96,75 @@ for a=1:n
     
     for y=1:N
         for x=1:3
-            mono(x,y,a) = RGB_images_n(x,y) / data(y,1);
+            mono(x,y,a) = RGB_images_n(x,y) / data(y,2);
         end
     end
-    if deb_plot == 1
-        figure()
+
+    %% Add info to the matrix import
+    mono(4,1:N,a) = vettore;
+    mono(5,1,a) = NDF;
+    mono(5,2,a) = N;
+    
+    
+    %% DEBUG ----------------------
+    % save volatiles date
+    if debug_plot == 1
+        figure('Name','Results','NumberTitle','off');
+        
+        %% Monochromator spectrum (TXT)
+        subplot(2,2,1);
         grid on
         hold on
-        title(['Quantum-Efficiency of ',num2str(NDF),' NDF']);
+        for i =1:length(data)
+            plot(data(i,1),data(i,2),'r--o');
+        end
+        title(['Monochromator spectrum with ',num2str(NDF),' NDF']);
+        
+        %% Quantum-Efficiency of NDF
+        subplot(2,2,2);
+        grid on
+        hold on
         for i=1:N
             plot(vettore(1,i),mono(1,i,a),'r--o');
             plot(vettore(1,i),mono(2,i,a),'g--o');
             plot(vettore(1,i),mono(3,i,a),'b--o');
         end
+        title(['Quantum-Efficiency of ',num2str(NDF),' NDF']);
+        
+        %% Optical density NOT mixed
+        %var = exist('ODM', 'var');
+        if  ODM(1,1) == 0   % if ODM not exist
+            clear ODM
+            subplot(2,2,3);
+            grid on
+            hold on
+            for i=1:length(OD)
+                plot(OD(i,1),OD(i,2),'b--o');
+            end
+            title(['Optical density ',num2str(NDF),' NDF']);
+            %optical_density(:,1) = OD(:,1);
+            %optical_density(:,a+1) = OD(:,2);
+        else   
+            %% Optical density MIXED
+            subplot(2,2,3);
+            grid on
+            hold on
+            % autonomus raw detector
+            %[R,C] = size(mono)
+            %for j=1:C
+            for i =1:length(OD)
+                plot(OD(i,1),ODM(i,1),'r--o');
+                plot(OD(i,1),ODM(i,2),'g--o');
+                %% Optical density SUM
+                plot(OD(i,1),OD(i,2),'b--o');
+            end
+            title(['Optical density MIXED ',num2str(NDF),' NDF']);
+        end
+    else
+        clear ODM
     end
-    %% Add info to the matrix import
-    mono(4,1:N,a) = vettore;
-    mono(5,1,a) = NDF;
-    mono(5,2,a) = N;
+    %% DEBUG END ---------------------- 
+    
     
     if (a==n)
         fprintf('Interpolation of data.\n');
@@ -123,7 +174,8 @@ for a=1:n
 end
 
 
-%% Multi plot with NDF's mean
+%% Interpolation of data with Transmission Data -optical density-
+% result in last mono(:,:,Z) matrix
 
  if lol == 1
      % New matrix in Z with the first matrix (z=1)
@@ -155,7 +207,7 @@ end
          last = union(last,mono(4,:,n));
          % delate the first zero column
          last(:,1)=[];
-         % new vettore
+         % who many vector has now = vettore
          mono(4,:,n+1) = last;
          % new NDF
          mono(5,1,n+1) = mono(5,1,n);
@@ -179,10 +231,14 @@ if lol == 1 || n == 1
     figure()
     grid on
     hold on
-    title('Quantum-Efficiency mixed')
+    if n == 1 
+        title('Quantum-Efficiency')
+    else 
+        title('Quantum-Efficiency mixed')
+    end
     for i=1:mono(5,2,n+1)
         plot(mono(4,i,n+1),mono(1,i,n+1),'r--o');
-        plot(mono(4,i,n+1),mono(2,i,n+1),'g--o');
-        plot(mono(4,i,n+1),mono(3,i,n+1),'b--o');
+        plot(mono(4,i,n+1),mono(2,i,n+1),'b--o');
+        plot(mono(4,i,n+1),mono(3,i,n+1),'g--o');
     end
 end
