@@ -6,10 +6,8 @@
 % clear all
 % close all
 function [ODM,data,OD] =read_txt(PathName,debug_plot)
-%vettore=[400:5:810];
 Wave = [];
 Ampl = [];
-%nWave = [];
 
 % How many txt files in the folder?
 my_dir = fullfile(PathName,'NDF');
@@ -114,8 +112,3 @@ function [ODM,OD] = Transmission(PathName,debug_plot)
         OD = transmission;
     end
 end
-% for i=1:80
-%   plot(Wave(:,i),nAmpl(:,i))
-% end
-%Plot limits
-% xlim([350 850])
