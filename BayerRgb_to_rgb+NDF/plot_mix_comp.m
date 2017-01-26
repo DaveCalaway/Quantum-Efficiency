@@ -1,6 +1,6 @@
 %% The script read npy array ( with Bayer format ) and extract RGB's array in specific area of image.
 %% The script use the NDF filter ( Optical Densities ) and Monochromator's characteristic for ploting the QE.
-% Verions 0.11 alpha - 23-01-2017 
+% Verions 0.12 alpha - 26-01-2017 
 % Davide Gariselli Git: https://goo.gl/pKFcVZ at Unimore Enzo Ferrari University
 
 clc
@@ -26,7 +26,7 @@ n = input('Number of capture(s): ');
 
 for a=1:n
     %% Grab the datas
-    NDF = input('What NDFs filter did you used: ');
+    NDF = input('What NDFs filter did you use: ');
     %% Position of folder with all files 
     fprintf('Please load Raw Bayer (.NPY) captured with NDF: %1.1f \n',NDF);
     [FileName,PathName]= uigetfile('*.npy','Select source directory:');
@@ -141,6 +141,8 @@ for a=1:n
             for i=1:length(OD)
                 plot(OD(i,1),OD(i,2),'b--o');
             end
+            %Plot limits
+            %xlim([300 1100])
             title(['Optical density ',num2str(NDF),' NDF']);
             %optical_density(:,1) = OD(:,1);
             %optical_density(:,a+1) = OD(:,2);
@@ -158,6 +160,8 @@ for a=1:n
                 %% Optical density SUM
                 plot(OD(i,1),OD(i,2),'b--o');
             end
+            %Plot limits
+            %xlim([300 1100])
             title(['Optical density MIXED ',num2str(NDF),' NDF']);
         end
     else
@@ -167,78 +171,81 @@ for a=1:n
     
     
     if (a==n)
-        fprintf('Interpolation of data.\n');
-        lol=1;
+        fprintf('Interpolation of data with Transmission Data -optical density- .\n');
     end
-    
 end
 
 
 %% Interpolation of data with Transmission Data -optical density-
-% result in last mono(:,:,Z) matrix
+% result in last mono(:,:,n+1)) matrix
 
- if lol == 1
-     % New matrix in Z with the first matrix (z=1)
-     mono(:,:,n+1) = mono(:,:,1);
-     % Number of NDFs filters
-     for z=2:n
-         % cerca ultimo valore di n+1 dentro a z+1
-         last = mono(4,:,n+1);
-         [rowStart,colStart] = find(mono(4,:,z) == last(end));
-         % end position
-         [rawEnd,colEnd] = find(mono(4,:,z) == max(mono(4,:,z)) );
-     
-         %% Interpolation with Optical Transmission
-         % search the Wavelength in Transmission
-         [raw,col] = find( OD(:,1) == last(end) );
-         
-         for i = colStart:(colStart+(colEnd-colStart))
-             % Right-array division (./)
-             %mono(1:3,i,z) = mono(1:3,i,z) ./ log10( 100/transmission(raw,2) );
-             mono(1:3,i,z) = mono(1:3,i,z) ./ log10( 0.6 );
-             %raw = raw+1;
-         end
-         
-         %% Copy all with z+1 plan
-         % a me interessano le colonne, inzio di quello che devo copiare in
-         % n+1
-         % cerca ultimo vettore in z+1
-         mono(1:3,mono(5,2,n+1):( mono(5,2,n+1)+(mono(5,2,z)-colStart) ), n+1 ) = mono( 1:3,colStart:mono(5,2,z),z );
-         last = union(last,mono(4,:,n));
-         % delate the first zero column
-         last(:,1)=[];
-         % who many vector has now = vettore
-         mono(4,:,n+1) = last;
-         % new NDF
-         mono(5,1,n+1) = mono(5,1,n);
-         % new size
-         mono(5,2,n+1) = size(last,2);
+% New matrix in Z (n+1) with the first matrix (z=1)
+ mono(:,:,n+1) = mono(:,:,1);
+% One NDF
+if exist('ODM', 'var') == 0
+        % search the Wavelength in Transmission
+        [raw,col] = find( OD(:,1) == mono(4,1,n+1) );
+        for i = 1:mono(5,2,n+1)
+            mono(1:3,i,n+1) = mono(1:3,i,n+1) ./ OD(raw,2);
+            raw=raw+1;
+        end
+else
+    % More then one of NDFs 
+    for z=2:n
+        % cerca ultimo valore di n+1 dentro a z+1
+        last = mono(4,:,n+1);
+        [rowStart,colStart] = find(mono(4,:,z) == last(end));
+        % end position
+        [rawEnd,colEnd] = find(mono(4,:,z) == max(mono(4,:,z)) );
         
-     end
- end
-
-%% Print quantum efficiency
-fprintf('Plot the QE\n');
-if lol == 1 || n == 1
-    if n == 1
-        % new vettore
-        mono(4,:,n+1) = vettore;
+        %% Interpolation with Optical Transmission
+        % search the Wavelength in Transmission
+        [raw,col] = find( OD(:,1) == last(end) );
+        
+        for i = colStart:(colStart+(colEnd-colStart))
+            % Right-array division (./)
+            mono(1:3,i,z) = mono(1:3,i,z) ./ OD(raw,2);
+            %mono(1:3,i,z) = mono(1:3,i,z) .* log10( 0.6 );
+            %mono(1:3,i,z) = mono(1:3,i,z) ./ log10( 1.2 );
+            raw = raw+1;
+        end
+        
+        %% Copy all with z+1 plan
+        % a me interessano le colonne, inzio di quello che devo copiare in
+        % n+1
+        % cerca ultimo vettore in z+1
+        mono(1:3,mono(5,2,n+1):( mono(5,2,n+1)+(mono(5,2,z)-colStart) ), n+1 ) = mono( 1:3,colStart:mono(5,2,z),z );
+        last = union(last,mono(4,:,n));
+        % delate the first zero column
+        last(:,1)=[];
+        % who many vector has now = vettore
+        mono(4,:,n+1) = last;
         % new NDF
         mono(5,1,n+1) = mono(5,1,n);
         % new size
-        mono(5,2,n+1) = N;
+        mono(5,2,n+1) = size(last,2);
     end
-    figure()
-    grid on
-    hold on
-    if n == 1 
-        title('Quantum-Efficiency')
-    else 
-        title('Quantum-Efficiency mixed')
-    end
-    for i=1:mono(5,2,n+1)
-        plot(mono(4,i,n+1),mono(1,i,n+1),'r--o');
-        plot(mono(4,i,n+1),mono(2,i,n+1),'b--o');
-        plot(mono(4,i,n+1),mono(3,i,n+1),'g--o');
-    end
+end
+%% Print quantum efficiency
+fprintf('Plot the QE\n');
+if n == 1
+    % new vettore
+    mono(4,:,n+1) = vettore;
+    % new NDF
+    mono(5,1,n+1) = mono(5,1,n);
+    % new size
+    mono(5,2,n+1) = N;
+end
+figure()
+grid on
+hold on
+if n == 1
+    title('Quantum-Efficiency with Optical Densities')
+else
+    title('Quantum-Efficiency mixed with Optical Densities')
+end
+for i=1:mono(5,2,n+1)
+    plot(mono(4,i,n+1),mono(1,i,n+1),'r--o');
+    plot(mono(4,i,n+1),mono(2,i,n+1),'g--o');
+    plot(mono(4,i,n+1),mono(3,i,n+1),'b--o');
 end

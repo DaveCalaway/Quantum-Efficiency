@@ -1,4 +1,4 @@
-%% Import data from monochromator spectrum (TXT) and Transmission Data -optical density- (xlsx) file.
+%% Import Data from monochromator spectrum (TXT) and Transmission Data -optical density- (xlsx) file.
 % Script for importing data from the following text file.
 % Spectrum: https://goo.gl/Zaojol
 %
@@ -55,13 +55,6 @@ end
 %% Apmlitude normalized respect max
  nAmpl = Ampl/max(abs(Ampl(:)));
  
-%  if deb_plot == 1
-%      figure()
-%      grid on
-%      hold on
-%      title('Monochromator spectrum TXT files')
-%  end
- 
  for i=1:num
      data(i,2) = max(nAmpl(:,i));
  end
@@ -114,16 +107,11 @@ function [ODM,OD] = Transmission(PathName,debug_plot)
         end
         %% DEBUG
         if debug_plot == 1
-            %debug(:,1) = transmission(j,1);
             ODM = OD;
         end
         OD = sum(OD,2);
         transmission(:,2) = OD(:,1);
         OD = transmission;
-%         if debug_plot == 1
-%             optical_density(:,1,3) = OD(:,1);
-%             optical_density(:,i+2,3) = OD(:,2);
-%         end
     end
 end
 % for i=1:80
