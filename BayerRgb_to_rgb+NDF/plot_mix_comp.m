@@ -1,6 +1,6 @@
 %% The script read npy array ( with Bayer format ) and extract RGB's array in specific area of image.
 %% The script use the NDF filter ( Optical Densities ) and Monochromator's characteristic for ploting the QE.
-% Verions 0.12 alpha - 26-01-2017 
+% Verions 0.13 beta - 07-02-2017 
 % Davide Gariselli Git: https://goo.gl/pKFcVZ at Unimore Enzo Ferrari University
 
 clc
@@ -205,8 +205,6 @@ else
         for i = colStart:(colStart+(colEnd-colStart))
             % Right-array division (./)
             mono(1:3,i,z) = mono(1:3,i,z) ./ OD(raw,2);
-            %mono(1:3,i,z) = mono(1:3,i,z) .* log10( 0.6 );
-            %mono(1:3,i,z) = mono(1:3,i,z) ./ log10( 1.2 );
             raw = raw+1;
         end
         
@@ -226,6 +224,11 @@ else
         mono(5,2,n+1) = size(last,2);
     end
 end
+
+%% QE normalized respect max
+nQE = mono(1:3,1:mono(5,2,n+1),n+1);
+nQE = nQE / max(abs(nQE(:)));
+
 %% Print quantum efficiency
 fprintf('Plot the QE\n');
 if n == 1
@@ -242,10 +245,10 @@ hold on
 if n == 1
     title('Quantum-Efficiency with Optical Densities')
 else
-    title('Quantum-Efficiency mixed with Optical Densities')
+    title({'Quantum-Efficiency mixed with Optical Densities';'Normalized respect max'})
 end
 for i=1:mono(5,2,n+1)
-    plot(mono(4,i,n+1),mono(1,i,n+1),'r--o');
-    plot(mono(4,i,n+1),mono(2,i,n+1),'g--o');
-    plot(mono(4,i,n+1),mono(3,i,n+1),'b--o');
+    plot(mono(4,i,n+1),nQE(1,i),'r--o');
+    plot(mono(4,i,n+1),nQE(2,i),'g--o');
+    plot(mono(4,i,n+1),nQE(3,i),'b--o');
 end

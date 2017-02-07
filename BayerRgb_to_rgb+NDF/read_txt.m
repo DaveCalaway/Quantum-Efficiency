@@ -67,6 +67,7 @@ end
 function [ODM,OD] = Transmission(PathName,debug_plot)
 % How many xlsx files in the folder?
     num = length(dir([PathName, '/*.xlsx']));
+    
     %% One xlsx file
     if(num == 1 )
         fprintf('You have used only one NDF\n');
@@ -81,7 +82,7 @@ function [ODM,OD] = Transmission(PathName,debug_plot)
                 OD(j,1) = log10(100/transmission(j,2));
         end
         transmission(:,2) = OD(:,1);
-        OD = transmission;
+        OD = real(transmission);
         
         ODM = 0; % Necessary for debug
         
