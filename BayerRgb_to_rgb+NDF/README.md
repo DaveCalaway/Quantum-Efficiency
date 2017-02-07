@@ -12,7 +12,7 @@ Useful formula for convert Optical Density to Optical Transmission%:
 
     OD  = log10(100/OT%)
 
-**Status:** Alpha.
+**Status:** Beta.
 
 ------------------------
 Creative Commons license: https://goo.gl/Bt9Pwr
